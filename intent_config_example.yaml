@@ -1,0 +1,61 @@
+# 意图配置文件示例（多角色版本）
+# 用户可以通过此文件为不同角色（场景）添加、更新、删除意图
+# 每个角色有独立的唤醒词和意图配置
+# 系统会自动更新主配置文件（voice_assistant_config.yaml）中的意图识别prompt
+
+roles:
+  # 角色1: 爱跑哥 (aipaoge)
+  aipaoge:
+    wakeup_word: "爱跑哥"  # 该角色的唤醒词
+    audio_dir: "./gen_voice_dashscope_aipaoge"  # 音频文件存储路径（可选，如果未指定则使用默认路径）
+    intents:
+      # 示例1: 新意图 - 演示加油任务
+      - tag: "L"
+        instruction: "帮我演示一下加油任务"
+        description: "用户请求演示加油任务，例如'帮我演示一下加油任务'、'开始演示'、'演示一下'"
+        action:
+          type: "tts"  # 动作类型: tts (文本转语音播报)
+          text: "好的，现在开始演示。"  # 播报文本
+          audio_file: null  # 音频文件路径（可选，如果为null则自动生成）
+      
+      # 示例2: 更新现有意图（通过tag）
+      # 假设原来有个意图tag为"K1"，现在要更新它的动作
+      - tag: "K1"
+        instruction: "谢谢你的咖啡"
+        description: "感谢提供咖啡、答谢咖啡"
+        action:
+          type: "tts"
+          text: "任务已完成"  # 新动作文本（替换原来的"欢迎下次再来"）
+          # audio_file字段不需要指定，系统会自动从map.jsonl中检测或生成
+      
+      # 示例3: 新意图 - 结束演示任务
+      - tag: "M"
+        instruction: "请结束加油演示任务"
+        description: "用户请求结束演示任务，例如'请结束加油演示任务'、'结束演示'、'停止演示'"
+        action:
+          type: "tts"
+          text: "好的，现在结束任务"
+          # audio_file字段不需要指定，系统会自动从map.jsonl中检测或生成
+  
+  # 角色2: 加油侠 (jiayouxia)
+  jiayouxia:
+    wakeup_word: "加油侠"  # 该角色的唤醒词
+    audio_dir: "./gen_voice_dashscope_jiayouxia"  # 音频文件存储路径（可选，如果未指定则使用默认路径）
+    intents:
+      # 示例: 为加油侠角色添加新意图
+      - tag: "L"
+        instruction: "帮我演示一下加油任务"
+        description: "用户请求演示加油任务"
+        action:
+          type: "tts"
+          text: "好的，现在开始演示。"
+          # audio_file字段不需要指定，系统会自动从map.jsonl中检测或生成
+      
+      # 示例: 更新加油侠的K1意图
+      - tag: "K1"
+        instruction: "谢谢你的咖啡"
+        description: "感谢提供咖啡、答谢咖啡"
+        action:
+          type: "tts"
+          text: "任务已完成"
+          # audio_file字段不需要指定，系统会自动从map.jsonl中检测或生成

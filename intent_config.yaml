@@ -1,0 +1,129 @@
+roles:
+  aipaoge:
+    wakeup_word: 爱跑哥
+    intents:
+    - tag: A
+      instruction: 附近有加油站吗
+      description: 用户明确请求查看地图、导航路线或位置信息，例如'附近有加油站吗'、'怎么去西湖？'、'打开地图'
+      action:
+        type: tts
+        text: ''
+    - tag: B
+      instruction: 地球有多大？
+      description: 用户提出一个事实性、知识性问题，期望从知识库获取答案，例如'地球有多大？'、'Python怎么读文件？'、'爱因斯坦是谁？'
+      action:
+        type: tts
+        text: ''
+    - tag: C
+      instruction: 你好
+      description: 用户进行打招呼、寒暄或礼貌性问候，例如'你好'、'早上好'、'在吗？'、'嗨'
+      action:
+        type: tts
+        text: 尊敬的领导，欢迎光临中国石化易捷便利店。
+    - tag: E
+      instruction: 今天天气怎么样？
+      description: 用户询问今天当地的天气状况，例如'今天天气怎么样？'、'北京今天下雨吗？'、'气温多少度？'
+      action:
+        type: tts
+        text: 根据最新天气信息，北京市今天天气还不错。
+    - tag: F
+      instruction: 今天92号汽油多少钱？
+      description: 用户询问今日汽油或柴油的零售价格，例如'今天92号汽油多少钱？'、'油价涨了吗？'、'柴油价格是多少？'
+      action:
+        type: tts
+        text: 北京今天汽油价格，92号6.7元每升，95号7.1元每升
+    - tag: D1
+      instruction: 给我拿瓶水
+      description: 用户请求递送一瓶水或一杯水，例如'给我拿瓶水'、'能给我一杯水吗？'、'我口渴了，要水'
+      action:
+        type: tts
+        text: 好的，我去给您准备水
+    - tag: D2
+      instruction: 给我拿可乐
+      description: 用户请求递送一罐或一瓶可乐，例如'给我拿可乐'、'想要可乐'、'有可乐吗？给我一罐'
+      action:
+        type: tts
+        text: 好的，我去给您准备可乐
+    - tag: D3
+      instruction: 给我拿个蛋酥卷
+      description: 用户请求递送蛋酥卷（一种零食），例如'给我拿个蛋酥卷'、'有蛋酥卷吗？'、'我想吃蛋酥卷'
+      action:
+        type: tts
+        text: 好的，我去给您准备蛋酥卷
+    - tag: D4
+      instruction: 给我拿包奥利奥
+      description: 用户请求递送奥利奥饼干，例如'给我拿包奥利奥'、'有奥利奥吗？'、'我想吃奥利奥饼干'
+      action:
+        type: tts
+        text: 好的，我去给您准备奥利奥
+    - tag: H
+      instruction: 你叫什么名字？
+      description: 用户询问机器人的名字或身份，例如'你叫什么名字？'、'你是谁？'、'你的名字是什么？'
+      action:
+        type: tts
+        text: 你好，我叫爱跑哥，有什么需要可以叫我
+    audio_dir: /home/fiveages/Project/FiveAges/20260126_Refactoring_Voice_Asisstant/Vioce_Assistant/gen_voice_dashscope_aipaoge
+  jiayouxia:
+    wakeup_word: 加油侠
+    intents:
+    - tag: A
+      instruction: 附近有加油站吗
+      description: 查询地图
+      action:
+        type: tts
+        text: ''
+    - tag: B
+      instruction: 地球有多大？
+      description: 知识库问答
+      action:
+        type: tts
+        text: ''
+    - tag: C
+      instruction: 你好
+      description: 日常打招呼、主动问好
+      action:
+        type: tts
+        text: 尊敬的领导，欢迎光临中国石化易捷便利店
+    - tag: E
+      instruction: 今天天气怎么样？
+      description: 查询今日天气情况
+      action:
+        type: tts
+        text: 根据最新天气信息，北京市今天天气还不错。
+    - tag: F
+      instruction: 今天92号汽油多少钱？
+      description: 查询今日油价情况
+      action:
+        type: tts
+        text: 北京今天汽油价格，92号6.77元每升，95号7.21元每升
+    - tag: D1
+      instruction: 去给大家拿咖啡
+      description: 请求拿取咖啡
+      action:
+        type: tts
+        text: 好的，我去给您准备咖啡
+    - tag: D2
+      instruction: 给我一杯啤酒
+      description: 请求拿取啤酒
+      action:
+        type: tts
+        text: 好的，我去为您准备啤酒
+    - tag: K1
+      instruction: 谢谢你的咖啡
+      description: 感谢提供咖啡、答谢咖啡
+      action:
+        type: tts
+        text: 谢谢您对易捷咖啡的喜爱。
+    - tag: K2
+      instruction: 谢谢你的啤酒
+      description: 感谢提供啤酒、答谢啤酒
+      action:
+        type: tts
+        text: 谢谢您对易思汀啤酒的喜爱。
+    - tag: H
+      instruction: 你叫什么名字？
+      description: 询问对方姓名、问名字
+      action:
+        type: tts
+        text: 你好，我叫加油侠，有什么需要可以叫我
+    audio_dir: /home/fiveages/Project/FiveAges/20260126_Refactoring_Voice_Asisstant/Vioce_Assistant/gen_voice_dashscope_jiayouxia

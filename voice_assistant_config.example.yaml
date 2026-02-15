@@ -1,0 +1,244 @@
+basic:
+  wakeup_threshold: 1.0
+  wakeup_record_duration: 1.4
+  wakeup_overlap_duration: 0.7
+communication:
+  type: websocket
+  websocket:
+    host: localhost
+    port: 2626
+  tcp:
+    host: 127.0.0.1
+    port: 8888
+intent:
+  model: tongyi-intent-detect-v3
+  scenario: aipaoge
+  roles:
+    aipaoge:
+      wakeup_word: 爱跑哥
+      intents:
+      - tag: A
+        instruction: 附近有加油站吗
+        description: 用户明确请求查看地图、导航路线或位置信息，例如'附近有加油站吗'、'怎么去西湖？'、'打开地图'
+        action:
+          type: tts
+          text: ''
+      - tag: B
+        instruction: 地球有多大？
+        description: 用户提出一个事实性、知识性问题，期望从知识库获取答案，例如'地球有多大？'、'Python怎么读文件？'、'爱因斯坦是谁？'
+        action:
+          type: tts
+          text: ''
+      - tag: C
+        instruction: 你好
+        description: 用户进行打招呼、寒暄或礼貌性问候，例如'你好'、'早上好'、'在吗？'、'嗨'
+        action:
+          type: tts
+          text: 尊敬的领导，欢迎光临中国石化易捷便利店。
+      - tag: E
+        instruction: 今天天气怎么样？
+        description: 用户询问今天当地的天气状况，例如'今天天气怎么样？'、'北京今天下雨吗？'、'气温多少度？'
+        action:
+          type: tts
+          text: 根据最新天气信息，北京市今天天气还不错。
+      - tag: F
+        instruction: 今天92号汽油多少钱？
+        description: 用户询问今日汽油或柴油的零售价格，例如'今天92号汽油多少钱？'、'油价涨了吗？'、'柴油价格是多少？'
+        action:
+          type: tts
+          text: 北京今天汽油价格，92号6.7元每升，95号7.1元每升
+      - tag: D1
+        instruction: 给我拿瓶水
+        description: 用户请求递送一瓶水或一杯水，例如'给我拿瓶水'、'能给我一杯水吗？'、'我口渴了，要水'
+        action:
+          type: tts
+          text: 好的，我去给您准备水
+      - tag: D2
+        instruction: 给我拿可乐
+        description: 用户请求递送一罐或一瓶可乐，例如'给我拿可乐'、'想要可乐'、'有可乐吗？给我一罐'
+        action:
+          type: tts
+          text: 好的，我去给您准备可乐
+      - tag: D3
+        instruction: 给我拿个蛋酥卷
+        description: 用户请求递送蛋酥卷（一种零食），例如'给我拿个蛋酥卷'、'有蛋酥卷吗？'、'我想吃蛋酥卷'
+        action:
+          type: tts
+          text: 好的，我去给您准备蛋酥卷
+      - tag: D4
+        instruction: 给我拿包奥利奥
+        description: 用户请求递送奥利奥饼干，例如'给我拿包奥利奥'、'有奥利奥吗？'、'我想吃奥利奥饼干'
+        action:
+          type: tts
+          text: 好的，我去给您准备奥利奥
+      - tag: H
+        instruction: 你叫什么名字？
+        description: 用户询问机器人的名字或身份，例如'你叫什么名字？'、'你是谁？'、'你的名字是什么？'
+        action:
+          type: tts
+          text: 你好，我叫爱跑哥，有什么需要可以叫我
+      wozai_audio: ./gen_voice_dashscope_aipaoge/tts_015.mp3
+      check_audio: ./gen_voice_dashscope_aipaoge/tts_check.wav
+      audio_dir: ./gen_voice_dashscope_aipaoge
+    jiayouxia:
+      wakeup_word: 加油侠
+      intents:
+      - tag: A
+        instruction: 附近有加油站吗
+        description: 查询地图
+        action:
+          type: tts
+          text: ''
+      - tag: B
+        instruction: 地球有多大？
+        description: 知识库问答
+        action:
+          type: tts
+          text: ''
+      - tag: C
+        instruction: 你好
+        description: 日常打招呼、主动问好
+        action:
+          type: tts
+          text: 尊敬的领导，欢迎光临中国石化易捷便利店
+      - tag: E
+        instruction: 今天天气怎么样？
+        description: 查询今日天气情况
+        action:
+          type: tts
+          text: 根据最新天气信息，北京市今天天气还不错。
+      - tag: F
+        instruction: 今天92号汽油多少钱？
+        description: 查询今日油价情况
+        action:
+          type: tts
+          text: 北京今天汽油价格，92号6.77元每升，95号7.21元每升
+      - tag: D1
+        instruction: 去给大家拿咖啡
+        description: 请求拿取咖啡
+        action:
+          type: tts
+          text: 好的，我去给您准备咖啡
+      - tag: D2
+        instruction: 给我一杯啤酒
+        description: 请求拿取啤酒
+        action:
+          type: tts
+          text: 好的，我去为您准备啤酒
+      - tag: K1
+        instruction: 谢谢你的咖啡
+        description: 感谢提供咖啡、答谢咖啡
+        action:
+          type: tts
+          text: 谢谢您对易捷咖啡的喜爱。
+      - tag: K2
+        instruction: 谢谢你的啤酒
+        description: 感谢提供啤酒、答谢啤酒
+        action:
+          type: tts
+          text: 谢谢您对易思汀啤酒的喜爱。
+      - tag: H
+        instruction: 你叫什么名字？
+        description: 询问对方姓名、问名字
+        action:
+          type: tts
+          text: 你好，我叫加油侠，有什么需要可以叫我
+      wozai_audio: ./gen_voice_dashscope_jiayouxia/tts_015.mp3
+      check_audio: ./gen_voice_dashscope_jiayouxia/tts_check.wav
+      audio_dir: ./gen_voice_dashscope_jiayouxia
+rag:
+  type: bailian
+  bailian:
+    index_id: bo7eh8yh3o
+    model: qwen-plus
+    name: 中石化资料库
+    description: 一个包含中石化常见知识的资料库助手
+    instructions: '你是一个资料库助手，你的任务是帮助用户找到相关的中石化知识。使用提供的知识库来回答用户的问题。以下信息可能对你有帮助：
+
+      **重要要求**：
+
+      1. 请保持回复简洁明了
+
+      2. 每个回答尽量控制在3-5句话内,控制在120字内
+
+      3. 直接回答问题要点，避免冗长的背景介绍
+
+      4. 如果用户需要详细信息，可以询问是否需要扩展说明
+
+      5. 回答问题最后结束时，不要有反问
+
+      6. 文档里查不到答案，就在线搜索，保证答案的准确性和时效性
+
+
+      以下信息可能对你有帮助：${document1}。
+
+      '
+    multiknowledge_rerank_top_n: 10
+    rerank_top_n: 5
+  dify:
+    api_url: http://YOUR_DIFY_HOST:PORT/v1/chat-messages
+    api_key: YOUR_DIFY_API_KEY_HERE
+    response_mode: streaming
+    user: YOUR_USER_ID_HERE
+api_keys:
+  dashscope_api_key: YOUR_DASHSCOPE_API_KEY_HERE
+  alibaba_cloud_access_key_id: YOUR_ALIBABA_CLOUD_ACCESS_KEY_ID_HERE
+  alibaba_cloud_access_key_secret: YOUR_ALIBABA_CLOUD_ACCESS_KEY_SECRET_HERE
+  workspace_id: YOUR_WORKSPACE_ID_HERE
+  amap_api_key: YOUR_AMAP_API_KEY_HERE
+asr:
+  model_path: ./speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch
+  device: cuda:0
+  vad_max_end_silence_time: 0.3
+  batch_size_s: 5
+  batch_size: 16
+  use_itn: true
+  beam_size: 1
+  normalize: true
+  realtime:
+    model: fun-asr-realtime
+    format: pcm
+    sample_rate: 16000
+    channels: 1
+    dtype: int16
+    block_size: 3200
+    max_sentence_silence: 800
+    multi_threshold_mode_enabled: true
+    semantic_punctuation_enabled: false
+    hotword:
+      enabled: false
+      prefix: testpfx
+      target_model: fun-asr-realtime
+      vocabulary:
+      - text: 蛋酥卷
+        weight: 5
+      - text: 奥利奥
+        weight: 5
+tts:
+  engine: dashscope
+  dashscope_voice: zhitian
+  keep_files: false
+  auto_play: true
+qwen:
+  model: qwen-turbo
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+paths:
+  current_dir: .
+  tmp_wav_dir: ./tmp_wav_file
+  realtime_audio_save_dir: ./instruction_temp_file
+  funasr_model_paths:
+  - ./speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch
+  - ./weights/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch
+logging:
+  level: INFO
+  format: '%(asctime)s - %(levelname)s - %(message)s'
+audio:
+  sample_rate: 16000
+  channels: 1
+  chunk: 1280
+  enable_playback: true
+map_query:
+  radius: 5000
+  sort_rule: distance
+  offset: 5
+  poi_type: '010100'

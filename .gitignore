@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 生成的音频文件
+*.mp3
+*.wav
+*.ogg
+
+# 测试和临时文件
+test.py
+*.test.py
+*_test.py
+test_*.py
+*.tmp
+*.bak
+*.swp
+*~
+
+# 归档文件夹
+done/
+before/
+gen_voice/
+gen_voice_guangyun/
+qwen_flow/
+gen_voice_edge/
+gen_voice_dashscope/
+gen_voice_dashscope_*/
+backup/
+speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch/
+sherpa-onnx/
+old_version/
+cmd_dir/
+asset/
+
+# 命令记录和日志
+cmd.txt
+*.log
+
+# IDE和编辑器
+.vscode/
+.idea/
+*.sublime-*
+.DS_Store
+
+# 环境配置
+.env
+.venv
+venv/
+env/
+
+# 包含真实密钥的配置文件（使用示例配置文件代替）
+voice_assistant_config.yaml
+!voice_assistant_config.example.yaml
+
+# 其他临时文件
+# tts_*.mp3
+response.mp3
+output.mp3
+test*.mp3
+batch_*.mp3
+custom_output.mp3
+# *.wav
+
+
+# 保留接口相关文件（使用 ! 来取消忽略）
+!tts_interface.py
+!tts_config.yaml
+!requirements.txt
+!README.md
+!environment.yaml
+

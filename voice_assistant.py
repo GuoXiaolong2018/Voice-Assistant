@@ -1028,7 +1028,7 @@ class ParallelWakeupManager:
             logger.debug(f"并行识别文本: {text}")
             match_score = 0
             text = text.replace(" ", "")
-            if self.wakeup_word in text:
+            if self.wakeup_word == text:
                 match_score = 1
             
             if match_score >= self.threshold:

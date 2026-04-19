@@ -313,60 +313,61 @@ def transcribe_audio_funasr_preloaded(
 # ============================================================
 # 实时语音识别功能
 # ============================================================
-class RealtimeRecognitionCallback(RecognitionCallback):
-    """实时语音识别回调类"""
+class DashScopeStreamingRecognitionCallback(RecognitionCallback):
+    """DashScope 流式实时语音识别回调类"""
     
-    def __init__(self, on_text_callback: Callable[[str], None] = None,
-                 on_sentence_end_callback: Callable[[str], None] = None):
+    def __init__(self, on_partial_text_callback: Callable[[str], None] = None,
+                 on_sentence_complete_callback: Callable[[str], None] = None):
         """
         初始化回调
         
         参数:
-            on_text_callback: 当识别到文本时的回调函数，参数为识别文本
-            on_sentence_end_callback: 当检测到句子结束时的回调函数，参数为完整句子
+            on_partial_text_callback: 当识别到文本时的回调函数，参数为识别文本
+            on_sentence_complete_callback: 当检测到句子结束时的回调函数，参数为完整句子
         """
-        self.on_text_callback = on_text_callback
-        self.on_sentence_end_callback = on_sentence_end_callback
-        self.realtime_stream = None
-        self.realtime_mic = None
-        self.cur_asr_recognized_text = None
-        self.full_sentence = None
-        self.is_processing = False
+        self.on_partial_text_callback = on_partial_text_callback
+        self.on_sentence_complete_callback = on_sentence_complete_callback
+        self.mic_input_stream = None
+        self.pyaudio_instance = None
+        self.partial_recognized_text = None
+        self.final_recognition_text = None
+        self.last_finalized_sentence = None
+        self.should_stop_reading = False
     
     def on_open(self) -> None:
         """识别服务打开时的回调"""
         logger.info('实时识别回调：服务已打开')
         try:
-            realtime_mic = pyaudio.PyAudio()
-            realtime_stream = realtime_mic.open(
+            pyaudio_instance = pyaudio.PyAudio()
+            mic_input_stream = pyaudio_instance.open(
                 format=pyaudio.paInt16,
                 channels=1,
                 rate=16000,
                 input=True
             )
-            self.realtime_stream = realtime_stream
-            self.realtime_mic = realtime_mic
+            self.mic_input_stream = mic_input_stream
+            self.pyaudio_instance = pyaudio_instance
         except Exception as e:
             logger.error(f"初始化音频流失败: {e}")
     
     def on_close(self) -> None:
         """识别服务关闭时的回调"""
         logger.info('实时识别回调：服务已关闭')
-        if self.realtime_stream:
+        if self.mic_input_stream:
             try:
-                if self.realtime_stream.is_active():
-                    self.realtime_stream.stop_stream()
-                self.realtime_stream.close()
+                if self.mic_input_stream.is_active():
+                    self.mic_input_stream.stop_stream()
+                self.mic_input_stream.close()
             except:
                 pass
-            self.realtime_stream = None
+            self.mic_input_stream = None
         
-        if self.realtime_mic:
+        if self.pyaudio_instance:
             try:
-                self.realtime_mic.terminate()
+                self.pyaudio_instance.terminate()
             except:
                 pass
-            self.realtime_mic = None
+            self.pyaudio_instance = None
     
     def on_complete(self) -> None:
         """识别完成时的回调"""
@@ -375,52 +376,55 @@ class RealtimeRecognitionCallback(RecognitionCallback):
     def on_error(self, message) -> None:
         """识别出错时的回调"""
         logger.error(f'实时识别回调错误 - task_id: {message.request_id}, error: {message.message}')
-        if self.realtime_stream and self.realtime_stream.is_active():
+        if self.mic_input_stream and self.mic_input_stream.is_active():
             try:
-                self.realtime_stream.stop_stream()
-                self.realtime_stream.close()
+                self.mic_input_stream.stop_stream()
+                self.mic_input_stream.close()
             except:
                 pass
         logger.error("实时识别服务出错，但继续运行")
     
     def on_event(self, result: RecognitionResult) -> None:
-        """识别事件回调"""
+        """识别事件回调：DashScope 每条识别事件入口"""
         sentence = result.get_sentence()
         if 'text' in sentence:
-            self.cur_asr_recognized_text = sentence["text"]
+            self.partial_recognized_text = sentence["text"]
             
-            if len(self.cur_asr_recognized_text) < 2:
+            if len(self.partial_recognized_text) < 2:
                 return
             
             # 过滤无意义字符
             meaningless_chars = '嗯啊哦呃。'
-            if sum(1 for c in self.cur_asr_recognized_text if c in meaningless_chars) / len(self.cur_asr_recognized_text) > 0.5:
+            if sum(1 for c in self.partial_recognized_text if c in meaningless_chars) / len(self.partial_recognized_text) > 0.5:
                 return
             
             # 清理文本
-            self.cur_asr_recognized_text = self.cur_asr_recognized_text.replace(" ", "").replace("我在，", "").replace("我在", "")
-            self.cur_asr_recognized_text = re.sub(r'[。.?!！？]+$', '', self.cur_asr_recognized_text)
+            self.partial_recognized_text = self.partial_recognized_text.replace(" ", "").replace("我在，", "").replace("我在", "")
+            self.partial_recognized_text = re.sub(r'[。.?!！？]+$', '', self.partial_recognized_text)
             
             # 调用文本回调
-            if self.on_text_callback:
-                self.on_text_callback(self.cur_asr_recognized_text)
+            if self.on_partial_text_callback:
+                self.on_partial_text_callback(self.partial_recognized_text)
+            
             
             # 检测句子结束
-            if len(self.cur_asr_recognized_text) >= 2 and RecognitionResult.is_sentence_end(sentence):
-                logger.info(f'检测到整句: {self.cur_asr_recognized_text}')
-                
-                if self.full_sentence is not None:
-                    self.full_sentence = self.full_sentence + "。" + self.cur_asr_recognized_text
-                else:
-                    self.full_sentence = self.cur_asr_recognized_text
-                    self.cur_asr_recognized_text = ""
-                
-                self.is_processing = True
+            if len(self.partial_recognized_text) >= 2 and RecognitionResult.is_sentence_end(sentence):
+                logger.info(f'检测到整句: {self.partial_recognized_text}')
+
+                current_sentence = self.partial_recognized_text.strip()
+                if current_sentence and current_sentence != self.last_finalized_sentence:
+                    if self.final_recognition_text:
+                        self.final_recognition_text = self.final_recognition_text + "。" + current_sentence
+                    else:
+                        self.final_recognition_text = current_sentence
+                    self.last_finalized_sentence = current_sentence
+
+                self.partial_recognized_text = ""
+                self.should_stop_reading = True
                 
                 # 调用句子结束回调
-                if self.on_sentence_end_callback and self.full_sentence:
-                    self.on_sentence_end_callback(self.full_sentence)
-
+                if self.on_sentence_complete_callback and self.final_recognition_text:
+                    self.on_sentence_complete_callback(self.final_recognition_text)
 
 class RealtimeASREngine:
     """实时语音识别引擎"""
@@ -434,15 +438,15 @@ class RealtimeASREngine:
         """
         self.config = config
         self.realtime_config = config.get("asr", {}).get("realtime", {})
-        self.realtime_recognition = None
-        self.callback = None
-        self.full_sentence = ""
-        self.cur_asr_recognized_text = None
-        self.is_processing = False
+        self.dashscope_recognition_client = None
+        self.dashscope_streaming_recognition_callback = None
+        self.final_recognition_text = ""
+        self.partial_recognized_text = None
+        self.should_stop_reading = False
         self.realtime_audio_frames = []
         self.realtime_audio_frames_lock = threading.Lock()
-        self.G_RASR_CUR_START = time.time()
-        self.G_RASR_CUR_END = time.time()
+        self.G_instruction_listen_started_at = time.time()
+        self.G_now_for_timeout_check = time.time()
     
     def initialize(self):
         """初始化实时识别"""
@@ -450,20 +454,20 @@ class RealtimeASREngine:
             logger.error("DashScope ASR 模块未安装，无法初始化实时识别")
             return False
         
-        def on_text(text: str):
-            self.cur_asr_recognized_text = text
+        def update_engine_partial_text(text: str):
+            self.partial_recognized_text = text
         
-        def on_sentence_end(sentence: str):
-            self.full_sentence = sentence
-            self.is_processing = True
+        def apply_final_recognition_and_stop_reading(sentence: str):
+            self.final_recognition_text = sentence
+            self.should_stop_reading = True
         
-        self.callback = RealtimeRecognitionCallback(
-            on_text_callback=on_text,
-            on_sentence_end_callback=on_sentence_end
+        self.dashscope_streaming_recognition_callback = DashScopeStreamingRecognitionCallback(
+            on_partial_text_callback=update_engine_partial_text,
+            on_sentence_complete_callback=apply_final_recognition_and_stop_reading
         )
         
         try:
-            self.realtime_recognition = Recognition(
+            self.dashscope_recognition_client = Recognition(
                 model=self.realtime_config.get("model", "fun-asr-realtime"),
                 format=self.realtime_config.get("format", "pcm"),
                 sample_rate=self.realtime_config.get("sample_rate", 16000),
@@ -471,7 +475,7 @@ class RealtimeASREngine:
                 max_sentence_silence=self.realtime_config.get("max_sentence_silence", 800),
                 multi_threshold_mode_enabled=self.realtime_config.get("multi_threshold_mode_enabled", True),
                 vocabulary_id=None,
-                callback=self.callback
+                callback=self.dashscope_streaming_recognition_callback
             )
             return True
         except Exception as e:
@@ -485,7 +489,7 @@ class RealtimeASREngine:
         返回:
             识别的指令文本，如果失败则返回 None
         """
-        if not self.realtime_recognition:
+        if not self.dashscope_recognition_client:
             logger.error("实时识别未初始化")
             return None
         
@@ -496,32 +500,32 @@ class RealtimeASREngine:
                 self.realtime_audio_frames = []
             
             # 清空所有识别状态
-            self.full_sentence = ""
-            self.cur_asr_recognized_text = None
-            self.is_processing = False
+            self.final_recognition_text = ""
+            self.partial_recognized_text = None
+            self.should_stop_reading = False
             
             # 清空回调中的状态
-            if self.callback:
-                self.callback.full_sentence = None
-                self.callback.cur_asr_recognized_text = None
-                self.callback.is_processing = False
+            if self.dashscope_streaming_recognition_callback:
+                self.dashscope_streaming_recognition_callback.final_recognition_text = None
+                self.dashscope_streaming_recognition_callback.partial_recognized_text = None
+                self.dashscope_streaming_recognition_callback.last_finalized_sentence = None
+                self.dashscope_streaming_recognition_callback.should_stop_reading = False
             
-            self.realtime_recognition.start()
-            self.G_RASR_CUR_START = time.time()
+            self.dashscope_recognition_client.start()
+            self.G_instruction_listen_started_at = time.time()
             instruction = None
             
             while True:
-                self.is_processing = False
                 logger.info("请说话，我正在聆听...")
-                local_time_duration = False
+                max_listen_exceeded = False
                 
                 block_size = self.realtime_config.get("block_size", 3200)
                 
                 # 从回调中获取stream
-                while not self.is_processing:
-                    if self.callback and self.callback.realtime_stream:
+                while not self.should_stop_reading:
+                    if self.dashscope_streaming_recognition_callback and self.dashscope_streaming_recognition_callback.mic_input_stream:
                         try:
-                            data = self.callback.realtime_stream.read(block_size, exception_on_overflow=False)
+                            data = self.dashscope_streaming_recognition_callback.mic_input_stream.read(block_size, exception_on_overflow=False)
                             
                             # 累积保存音频数据
                             try:
@@ -530,12 +534,12 @@ class RealtimeASREngine:
                             except Exception as e:
                                 logger.warning(f"累积音频块失败: {e}")
                             
-                            self.realtime_recognition.send_audio_frame(data)
+                            self.dashscope_recognition_client.send_audio_frame(data)
                             time.sleep(0.01)
                             
-                            self.G_RASR_CUR_END = time.time()
-                            local_time_duration = (self.G_RASR_CUR_END - self.G_RASR_CUR_START) > 6.0
-                            if local_time_duration:
+                            self.G_now_for_timeout_check = time.time()
+                            max_listen_exceeded = (self.G_now_for_timeout_check - self.G_instruction_listen_started_at) > 6.0
+                            if max_listen_exceeded:
                                 break
                         except Exception as e:
                             logger.error(f"读取音频流失败: {e}")
@@ -544,11 +548,11 @@ class RealtimeASREngine:
                         logger.error("音频流未初始化")
                         break
                 
-                if local_time_duration and self.cur_asr_recognized_text and len(self.cur_asr_recognized_text) >= 2:
-                    self.full_sentence = self.cur_asr_recognized_text
+                if max_listen_exceeded and self.partial_recognized_text and len(self.partial_recognized_text) >= 2:
+                    self.final_recognition_text = self.partial_recognized_text
                 
-                if self.full_sentence:
-                    self.realtime_recognition.stop()
+                if self.final_recognition_text:
+                    self.dashscope_recognition_client.stop()
                     
                     # 保存累积的音频数据
                     try:
@@ -560,18 +564,18 @@ class RealtimeASREngine:
                     except Exception as e:
                         logger.warning(f"保存累积音频失败: {e}")
                     
-                    instruction = self.full_sentence
-                    self.full_sentence = ""
+                    instruction = self.final_recognition_text
+                    self.final_recognition_text = ""
                     logger.info(f"实时识别到的指令: {instruction}")
                     break
                 else:
-                    self.realtime_recognition.stop()
+                    self.dashscope_recognition_client.stop()
                     break
         except Exception as e:
             logger.error(f"实时识别指令失败: {e}")
             try:
-                if self.realtime_recognition:
-                    self.realtime_recognition.stop()
+                if self.dashscope_recognition_client:
+                    self.dashscope_recognition_client.stop()
             except:
                 pass
         
@@ -597,17 +601,17 @@ class RealtimeASREngine:
     
     def stop(self):
         """停止实时识别"""
-        if self.realtime_recognition:
+        if self.dashscope_recognition_client:
             try:
-                self.realtime_recognition.stop()
+                self.dashscope_recognition_client.stop()
             except:
                 pass
     
     def cleanup(self):
         """清理资源"""
         self.stop()
-        if self.callback:
-            self.callback.on_close()
+        if self.dashscope_streaming_recognition_callback:
+            self.dashscope_streaming_recognition_callback.on_close()
 
 
 if __name__ == "__main__":

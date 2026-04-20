@@ -96,7 +96,7 @@ def generate_audio_for_directory(output_dir, map_file_path, dashscope_voice='zhi
         dashscope_voice=dashscope_voice,
         keep_files=True,  # 保留生成的文件
         auto_play=False,  # 批量生成时不播放
-        dashscope_api_key=dashscope_api_key or "sk-3ecf3fdfbf734c06a536bbe7d841054d",
+        dashscope_api_key=dashscope_api_key or os.environ.get("DASHSCOPE_API_KEY"),
         output_dir=str(output_path)
     )
     
@@ -150,8 +150,11 @@ def main():
         }
     ]
     
-    # API 密钥（从 04_talker_qwen_flow.py 中获取）
-    api_key = "sk-3ecf3fdfbf734c06a536bbe7d841054d"
+    # API 密钥：请设置环境变量 DASHSCOPE_API_KEY
+    api_key = os.environ.get("DASHSCOPE_API_KEY")
+    if not api_key:
+        print("错误: 请设置环境变量 DASHSCOPE_API_KEY")
+        sys.exit(1)
     
     # 为每个目录生成音频
     for config in configs:

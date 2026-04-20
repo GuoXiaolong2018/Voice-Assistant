@@ -229,7 +229,7 @@ Vioce_Assistant/
 
 **线程并行架构图**
 
-[查看线程并行架构图](./asset/04_record_instruction与DashScope流式回调流程图.png)
+![查看线程并行架构图](./asset/04_record_instruction与DashScope流式回调流程图.png)
 
 **技术细节**
 
